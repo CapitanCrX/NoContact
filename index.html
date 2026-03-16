@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="İletişimsizlik">
+<meta name="theme-color" content="#FAF8F4">
+<title>İletişimsizlik</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:    #FAF8F4;
+  --sur:   #F3F0EA;
+  --card:  #FFFFFF;
+  --bdr:   #E8E2D9;
+  --sun:   #E07B4F;
+  --sun2:  #C4623A;
+  --leaf:  #7BAE8C;
+  --forest:#5BA08A;
+  --lav:   #9B89C4;
+  --rose:  #D4788A;
+  --t1:    #2C2018;
+  --t2:    #8A7A65;
+  --t3:    #BFB49E;
+  --danger:#D4624A;
+  --safe:  env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg); color: var(--t1);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+#app { display: flex; flex-direction: column; height: 100%; max-width: 430px; margin: 0 auto; position: relative; }
+
+.screen { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* Warm top glow */
+.screen::before {
+  content: '';
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; height: 220px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,200,160,.28), transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+.screen-content { position: relative; z-index: 1; padding: 0 20px; padding-bottom: calc(90px + var(--safe)); }
+
+/* ── TOP STATUS AREA ── */
+.screen-header {
+  padding: calc(env(safe-area-inset-top, 44px) + 16px) 20px 0;
+  position: relative; z-index: 1;
+}
+
+/* ── TAB BAR ── */
+#tabbar {
+  display: flex;
+  background: var(--card);
+  border: 1px solid var(--bdr);
+  border-radius: 28px;
+  margin: 0 14px calc(var(--safe) + 12px);
+  padding: 8px 6px;
+  box-shadow: 0 -4px 24px rgba(44,32,24,.08), 0 0 0 1px rgba(255,255,255,.7) inset;
+  flex-shrink: 0;
+  position: relative; z-index: 100;
+}
+.tab-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 0; border: none; background: none; cursor: pointer;
+  color: var(--t3); transition: color .2s;
+}
+.tab-btn.active { color: var(--sun); }
+.tab-btn svg { width: 20px; height: 20px; fill: currentColor; }
+.tab-btn span { font-size: 9px; font-weight: 500; font-family: 'DM Sans', sans-serif; }
+.tab-btn.active span { font-weight: 700; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 18px; padding: 16px;
+  box-shadow: 0 2px 10px rgba(44,32,24,.04);
+  margin-bottom: 12px;
+}
+.card-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; margin-bottom: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.card-label.sun { color: var(--sun); }
+.card-label.leaf { color: var(--leaf); }
+.card-label.t3 { color: var(--t3); }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  width: 100%; padding: 15px; border: none; border-radius: 16px;
+  background: var(--sun); color: white;
+  font-size: 16px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(224,123,79,.3);
+  transition: transform .1s, opacity .1s;
+}
+.btn-primary:active { transform: scale(.97); opacity: .88; }
+.btn-secondary {
+  width: 100%; padding: 13px; border: 1.5px solid var(--bdr); border-radius: 14px;
+  background: transparent; color: var(--t2);
+  font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: transform .1s;
+}
+.btn-secondary:active { transform: scale(.97); }
+.btn-danger {
+  width: 100%; padding: 13px; border: none; border-radius: 14px;
+  background: var(--danger); color: white;
+  font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
+/* ── INPUTS ── */
+input[type=text], input[type=date], textarea {
+  width: 100%; padding: 13px 15px;
+  border: 1.5px solid var(--bdr); border-radius: 14px;
+  background: var(--card); color: var(--t1);
+  font-size: 15px; font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color .2s;
+  -webkit-appearance: none;
+}
+input[type=text]:focus, input[type=date]:focus, textarea:focus {
+  border-color: rgba(224,123,79,.5);
+}
+textarea { resize: none; line-height: 1.6; }
+
+/* ══════════════════════════════
+   ANA SAYFA
+══════════════════════════════ */
+#screen-home .screen-header { padding-bottom: 4px; }
+
+.home-title { font-family: 'Lora', serif; font-size: 26px; font-weight: 700; color: var(--t1); }
+.home-sub { font-size: 13px; color: var(--t2); margin-top: 3px; }
+.streak-badge {
+  background: rgba(224,123,79,.1); border: 1px solid rgba(224,123,79,.2);
+  border-radius: 13px; padding: 8px 14px; text-align: center; flex-shrink: 0;
+}
+.streak-num { font-size: 22px; font-weight: 700; color: var(--sun); display: block; line-height: 1; }
+.streak-lbl { font-size: 9px; color: var(--t2); }
+
+/* Timer */
+.timer-card {
+  background: var(--card);
+  border: 1.5px solid rgba(224,123,79,.2);
+  border-radius: 22px; padding: 26px 16px 22px;
+  text-align: center; margin-bottom: 12px;
+  box-shadow: 0 4px 20px rgba(224,123,79,.08);
+  background-image: linear-gradient(180deg, rgba(255,200,160,.07) 0%, transparent 50%);
+}
+.timer-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--t3); margin-bottom: 14px; }
+.timer-digits { display: flex; justify-content: center; align-items: flex-end; gap: 0; }
+.timer-unit { text-align: center; padding: 0 6px; }
+.timer-num { font-family: 'DM Mono', monospace; font-size: 48px; font-weight: 300; color: var(--t1); display: block; line-height: 1; }
+.timer-unit-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--t3); margin-top: 4px; display: block; }
+.timer-sep { font-size: 36px; font-weight: 200; color: var(--t3); padding-bottom: 12px; }
+.timer-since { font-size: 11px; color: var(--t3); margin-top: 10px; }
+
+/* Progress bar */
+.prog-bar { background: var(--bdr); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 8px; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--leaf), var(--forest)); border-radius: 4px; transition: width .5s ease; }
+
+/* Relapse */
+.relapse-collapsed {
+  background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 14px; padding: 12px 16px;
+  color: var(--t3); font-size: 13px; text-align: center;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.relapse-expanded { display: none; }
+.relapse-expanded.show { display: flex; flex-direction: column; gap: 8px; }
+
+/* ══════════════════════════════
+   GÜNLÜK
+══════════════════════════════ */
+.journal-entry-card {
+  background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 16px; padding: 14px; margin-bottom: 10px;
+  box-shadow: 0 1px 6px rgba(44,32,24,.04); cursor: pointer;
+  transition: transform .1s;
+}
+.journal-entry-card:active { transform: scale(.98); }
+.entry-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mood-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 500;
+}
+.mood-0 { background: rgba(91,160,138,.1); color: var(--forest); }
+.mood-1 { background: rgba(123,174,140,.1); color: var(--leaf); }
+.mood-2 { background: rgba(168,144,122,.08); color: var(--t2); }
+.mood-3 { background: rgba(155,137,196,.1); color: var(--lav); }
+.mood-4 { background: rgba(212,120,138,.1); color: var(--rose); }
+.entry-date { font-size: 11px; color: var(--t3); }
+.entry-preview { font-size: 13px; color: var(--t2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.mood-picker { display: flex; gap: 8px; margin-bottom: 14px; }
+.mood-opt {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 4px; border: 1.5px solid var(--bdr); border-radius: 12px;
+  cursor: pointer; transition: all .15s; background: var(--card);
+}
+.mood-opt.selected { border-color: var(--sun); background: rgba(224,123,79,.06); }
+.mood-opt span:first-child { font-size: 22px; }
+.mood-opt span:last-child { font-size: 9px; color: var(--t2); font-weight: 500; }
+
+/* ══════════════════════════════
+   TOPLULUK
+══════════════════════════════ */
+.room-tabs { display: flex; gap: 7px; overflow-x: auto; padding: 10px 20px 4px; margin: 0 -20px; scrollbar-width: none; }
+.room-tabs::-webkit-scrollbar { display: none; }
+.room-chip {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--bdr);
+  background: var(--card); color: var(--t2); font-size: 12px; font-weight: 500;
+  white-space: nowrap; cursor: pointer; transition: all .15s; flex-shrink: 0;
+}
+.room-chip.active { border-color: rgba(224,123,79,.35); color: var(--sun); background: rgba(224,123,79,.08); }
+
+.com-msg {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 10px 0; border-bottom: 1px solid var(--bdr);
+}
+.com-msg:last-child { border-bottom: none; }
+.com-msg-meta { display: flex; align-items: center; gap: 8px; }
+.com-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.com-name { font-size: 13px; font-weight: 600; color: var(--t1); }
+.com-streak { font-size: 10px; color: var(--t3); }
+.com-time { margin-left: auto; font-size: 10px; color: var(--t3); }
+.com-bub {
+  font-size: 13px; color: var(--t1); line-height: 1.55;
+  background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 14px; border-top-left-radius: 4px;
+  padding: 9px 13px; margin-left: 36px;
+  box-shadow: 0 1px 4px rgba(44,32,24,.04);
+}
+.com-own .com-bub {
+  background: var(--sun); color: white; border-color: transparent;
+  margin-left: auto; margin-right: 0; border-radius: 14px; border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(224,123,79,.25);
+}
+
+.com-input-bar {
+  display: flex; gap: 10px; align-items: flex-end;
+  padding: 10px 20px calc(90px + var(--safe));
+  background: var(--bg); border-top: 1px solid var(--bdr);
+  position: sticky; bottom: 0;
+}
+.com-input-bar textarea {
+  flex: 1; padding: 10px 14px; border-radius: 20px;
+  max-height: 100px; min-height: 42px;
+}
+.send-btn {
+  width: 42px; height: 42px; border-radius: 50%; border: none;
+  background: var(--sun); color: white; font-size: 16px; font-weight: 700;
+  cursor: pointer; flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(224,123,79,.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .1s;
+}
+.send-btn:active { transform: scale(.92); }
+.send-btn:disabled { background: var(--bdr); box-shadow: none; }
+
+/* Nickname setup */
+.nickname-setup {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 60px 28px 40px; text-align: center; gap: 20px;
+}
+.ns-icon { font-size: 60px; margin-bottom: 4px; }
+.ns-title { font-family: 'Lora', serif; font-size: 26px; font-weight: 700; color: var(--t1); line-height: 1.2; }
+.ns-sub { font-size: 14px; color: var(--t2); line-height: 1.65; }
+.rule-row {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 10px 14px; background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 12px; font-size: 13px; color: var(--t2); width: 100%;
+}
+
+/* Online badge */
+.online-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--t2);
+}
+.online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--leaf); flex-shrink: 0; }
+
+/* ══════════════════════════════
+   DOST AI
+══════════════════════════════ */
+.chat-messages {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 14px 20px; flex: 1;
+}
+.chat-msg { display: flex; gap: 8px; align-items: flex-end; }
+.chat-msg.user { flex-direction: row-reverse; }
+.chat-ai-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(224,123,79,.1); display: flex; align-items: center;
+  justify-content: center; font-size: 15px; flex-shrink: 0;
+}
+.chat-bubble {
+  max-width: 78%; padding: 11px 14px; border-radius: 18px;
+  font-size: 14px; line-height: 1.6; color: var(--t1);
+  background: var(--card); border: 1px solid var(--bdr);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px rgba(44,32,24,.04);
+}
+.chat-bubble.user {
+  background: var(--sun); color: white; border: none;
+  border-bottom-right-radius: 4px; border-bottom-left-radius: 18px;
+  box-shadow: 0 2px 10px rgba(224,123,79,.25);
+}
+.typing-dots { display: flex; gap: 4px; align-items: center; padding: 4px 2px; }
+.typing-dots span {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--t3);
+  animation: bounce 1.2s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: .2s; }
+.typing-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+.chat-input-bar {
+  display: flex; gap: 10px; align-items: flex-end;
+  padding: 10px 16px calc(90px + var(--safe));
+  background: var(--bg); border-top: 1px solid var(--bdr);
+  position: sticky; bottom: 0;
+}
+.chat-input-bar textarea { flex: 1; border-radius: 20px; padding: 10px 14px; min-height: 42px; max-height: 120px; }
+
+.quick-suggestions { display: flex; flex-direction: column; gap: 7px; margin-top: 6px; }
+.quick-sug-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px; background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 13px; font-size: 13px; color: var(--t2); cursor: pointer;
+  text-align: left; gap: 10px; transition: all .15s;
+}
+.quick-sug-btn:active { transform: scale(.98); background: var(--sur); }
+
+/* ══════════════════════════════
+   İLERLEME
+══════════════════════════════ */
+.stats-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.stat-card {
+  flex: 1; background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 16px; padding: 14px 8px; text-align: center;
+  box-shadow: 0 1px 5px rgba(44,32,24,.03);
+}
+.stat-icon { font-size: 22px; margin-bottom: 5px; }
+.stat-num { font-size: 22px; font-weight: 700; color: var(--t1); display: block; }
+.stat-lbl { font-size: 10px; color: var(--t2); }
+
+.milestone-row {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 14px; background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 14px; margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(44,32,24,.03);
+}
+.milestone-row.achieved { border-color: rgba(123,174,140,.3); background: rgba(123,174,140,.04); }
+.milestone-row.next { border-color: rgba(224,123,79,.25); background: rgba(255,200,160,.04); }
+.milestone-row.locked { opacity: .4; }
+.ms-icon { font-size: 28px; }
+.ms-title { font-size: 14px; font-weight: 600; color: var(--t1); }
+.ms-desc { font-size: 11px; color: var(--t2); margin-top: 2px; line-height: 1.4; }
+.ms-check { margin-left: auto; color: var(--forest); font-size: 16px; font-weight: 700; }
+
+/* ══════════════════════════════
+   AYARLAR
+══════════════════════════════ */
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: var(--card); border: 1px solid var(--bdr);
+  border-radius: 14px; margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(44,32,24,.03);
+}
+.settings-row-left { display: flex; align-items: center; gap: 12px; }
+.settings-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.settings-title { font-size: 15px; font-weight: 500; color: var(--t1); }
+.settings-sub { font-size: 11px; color: var(--t3); margin-top: 1px; }
+.settings-value { font-size: 13px; color: var(--t2); }
+
+/* Toggle */
+.toggle { position: relative; width: 50px; height: 28px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; border-radius: 28px;
+  background: var(--bdr); cursor: pointer; transition: .2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 22px; height: 22px; border-radius: 50%; background: white;
+  left: 3px; top: 3px; transition: .2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+.toggle input:checked + .toggle-slider { background: var(--sun); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+/* Section header */
+.section-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--t3); margin: 18px 0 8px 4px; }
+
+/* Page title */
+.page-title { font-family: 'Lora', serif; font-size: 28px; font-weight: 700; color: var(--t1); }
+.page-sub { font-size: 13px; color: var(--t2); margin-top: 3px; }
+
+/* ── ANIMATIONS ── */
+.fade-in { animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(44,32,24,.4);
+  display: flex; align-items: flex-end; z-index: 999;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.hidden { display: none; }
+.modal-sheet {
+  background: var(--bg); border-radius: 28px 28px 0 0;
+  padding: 20px 24px calc(28px + var(--safe));
+  width: 100%; max-width: 430px; margin: 0 auto;
+  box-shadow: 0 -8px 40px rgba(44,32,24,.15);
+}
+.modal-handle { width: 36px; height: 4px; background: var(--bdr); border-radius: 4px; margin: 0 auto 20px; }
+.modal-title { font-family: 'Lora', serif; font-size: 20px; font-weight: 700; color: var(--t1); margin-bottom: 8px; }
+.modal-sub { font-size: 13px; color: var(--t2); line-height: 1.6; margin-bottom: 18px; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 60px 32px; }
+.empty-icon { font-size: 52px; margin-bottom: 16px; }
+.empty-title { font-size: 18px; font-weight: 600; color: var(--t1); margin-bottom: 8px; }
+.empty-sub { font-size: 14px; color: var(--t2); line-height: 1.6; margin-bottom: 20px; }
+
+/* Header row */
+.header-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0 4px; }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--sur); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+
+/* ── INSTALL BANNER ── */
+#install-banner {
+  display: none; align-items: center; gap: 12px;
+  background: var(--sun); color: white;
+  padding: 12px 16px; font-size: 13px; font-weight: 500;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+}
+#install-banner button { background: white; color: var(--sun); border: none; border-radius: 8px; padding: 6px 12px; font-weight: 700; font-size: 12px; cursor: pointer; flex-shrink: 0; }
+#install-banner .close-banner { background: none; color: white; padding: 4px; font-size: 16px; opacity: .7; }
+</style>
+
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ ANA SAYFA ══ -->
+
+  <div id="screen-home" class="screen active">
+    <div class="screen-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:12px;">
+        <div>
+          <div class="home-title">İletişimsizlik</div>
+          <div class="home-sub" id="greeting">Günaydın 🌅</div>
+        </div>
+        <div class="streak-badge">
+          <span class="streak-num" id="streak-days">0</span>
+          <span class="streak-lbl">gün</span>
+        </div>
+      </div>
+    </div>
+    <div class="screen-content" style="padding-top:8px;">
+
+```
+  <!-- Timer -->
+  <div class="timer-card">
+    <div class="timer-lbl">İletişimsizlik süresi</div>
+    <div class="timer-digits">
+      <div class="timer-unit">
+        <span class="timer-num" id="t-days">00</span>
+        <span class="timer-unit-lbl">gün</span>
+      </div>
+      <div class="timer-sep">:</div>
+      <div class="timer-unit">
+        <span class="timer-num" id="t-hours">00</span>
+        <span class="timer-unit-lbl">saat</span>
+      </div>
+      <div class="timer-sep">:</div>
+      <div class="timer-unit">
+        <span class="timer-num" id="t-mins">00</span>
+        <span class="timer-unit-lbl">dak</span>
+      </div>
+      <div class="timer-sep">:</div>
+      <div class="timer-unit">
+        <span class="timer-num" id="t-secs">00</span>
+        <span class="timer-unit-lbl">sn</span>
+      </div>
+    </div>
+    <div class="timer-since" id="timer-since"></div>
+  </div>
+
+  <!-- Günün sözü -->
+  <div class="card">
+    <div class="card-label leaf"><span>Bugünün Sözü</span><span>🌿</span></div>
+    <div id="daily-msg" style="font-size:15px;line-height:1.65;color:var(--t1);"></div>
+  </div>
+
+  <!-- Sonraki hedef -->
+  <div class="card" id="next-milestone-card">
+    <div class="card-label t3"><span>Sonraki Hedef</span><span id="next-ms-icon">🏆</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:16px;font-weight:600;" id="next-ms-title">—</span>
+      <span style="font-size:11px;color:var(--t3);" id="next-ms-days"></span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="ms-progress" style="width:0%"></div></div>
+  </div>
+
+  <!-- Relapse -->
+  <div class="relapse-collapsed" id="relapse-btn" onclick="showRelapse()">
+    <span>↩</span> İletişime geçtim
+  </div>
+  <div class="relapse-expanded" id="relapse-expanded" style="gap:8px;">
+    <div style="font-size:13px;color:var(--t2);text-align:center;padding:4px 0;">Sayaç sıfırlanacak. Emin misin?</div>
+    <button class="btn-danger" onclick="doRelapse()">Evet, sayacı sıfırla</button>
+    <button class="btn-secondary" onclick="hideRelapse()">Hayır, dayanıyorum 💪</button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ══ GÜNLÜK ══ -->
+
+  <div id="screen-journal" class="screen">
+    <div class="screen-header">
+      <div class="header-row">
+        <div>
+          <div class="page-title">Günlük</div>
+          <div class="page-sub" id="journal-count">0 yazı</div>
+        </div>
+        <button class="btn-primary" style="width:auto;padding:10px 18px;font-size:14px;" onclick="openNewEntry()">+ Yaz</button>
+      </div>
+    </div>
+    <div class="screen-content" style="padding-top:8px;">
+      <div id="journal-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ TOPLULUK ══ -->
+
+  <div id="screen-community" class="screen">
+    <div class="screen-header" style="padding-bottom:0;">
+      <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:rgba(155,137,196,.12);border:1px solid rgba(155,137,196,.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--lav);flex-shrink:0;" id="com-avatar-hdr">?</div>
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--t1);" id="com-nickname-hdr">—</div>
+          <div class="online-badge"><div class="online-dot"></div><span id="online-count">0 kişi burada</span></div>
+        </div>
+      </div>
+    </div>
+
+```
+<!-- Nickname setup -->
+<div id="nickname-setup" class="nickname-setup" style="display:none;">
+  <div class="ns-icon">👥</div>
+  <div class="ns-title">Topluluk'a<br>hoş geldin</div>
+  <div class="ns-sub">Burası güvenli bir alan. Herkes aynı şeyi yaşıyor. Kendine bir takma ad seç.</div>
+  <div class="rule-row">💙 Empati önce gelir — kimseyi yargılama</div>
+  <div class="rule-row">🔒 Burada konuşulanlar burada kalır</div>
+  <div class="rule-row">🚫 Kimseyi ex'ine dönmeye zorlamak yasak</div>
+  <div style="width:100%;">
+    <input type="text" id="nickname-input" placeholder="Takma adın (en az 2 karakter)" maxlength="20" style="margin-bottom:6px;">
+    <div style="font-size:11px;color:var(--t3);margin-bottom:12px;" id="nick-counter">0/20</div>
+    <button class="btn-primary" onclick="joinCommunity()">Topluluğa Katıl</button>
+  </div>
+</div>
+
+<!-- Chat area -->
+<div id="community-chat" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+  <div class="room-tabs" id="room-tabs">
+    <div class="room-chip active" data-room="genel" onclick="switchRoom('genel',this)">💬 Genel</div>
+    <div class="room-chip" data-room="1-7-gun" onclick="switchRoom('1-7-gun',this)">🌱 1–7 Gün</div>
+    <div class="room-chip" data-room="1-ay" onclick="switchRoom('1-ay',this)">🔥 1 Ay+</div>
+    <div class="room-chip" data-room="3-ay" onclick="switchRoom('3-ay',this)">🦋 3 Ay+</div>
+  </div>
+  <div style="height:1px;background:var(--bdr);margin:0 20px 0;"></div>
+  <div id="com-messages" style="flex:1;overflow-y:auto;padding:12px 20px 0;-webkit-overflow-scrolling:touch;"></div>
+  <div class="com-input-bar" style="padding-bottom:calc(90px + var(--safe));">
+    <textarea id="com-text" placeholder="Bir şeyler yaz..." rows="1" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" onclick="sendCommunityMsg()">↑</button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ══ DOST AI ══ -->
+
+  <div id="screen-chat" class="screen">
+    <div class="screen-header">
+      <div style="display:flex;align-items:center;gap:12px;padding-bottom:10px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(224,123,79,.1);border:1px solid rgba(224,123,79,.2);display:flex;align-items:center;justify-content:center;font-size:22px;">🫂</div>
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--t1);">Dost AI</div>
+          <div class="online-badge"><div class="online-dot"></div><span id="ai-status-txt">dinlemeye hazır</span></div>
+        </div>
+        <button onclick="clearChat()" style="margin-left:auto;background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;padding:8px;">↺</button>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--bdr);margin:0 20px;"></div>
+
+```
+<div id="chat-messages" class="chat-messages"></div>
+
+<div class="chat-input-bar">
+  <textarea id="chat-input" placeholder="Yaz..." rows="1" oninput="autoResize(this)" onkeydown="chatKeyDown(event)"></textarea>
+  <button class="send-btn" id="chat-send-btn" onclick="sendChatMsg()">↑</button>
+</div>
+```
+
+  </div>
+
+  <!-- ══ İLERLEME ══ -->
+
+  <div id="screen-progress" class="screen">
+    <div class="screen-header">
+      <div class="header-row">
+        <div>
+          <div class="page-title">İlerleme</div>
+          <div class="page-sub" id="ms-count-sub">0 / 9 hedef</div>
+        </div>
+        <span style="font-size:32px;" id="latest-ms-icon">🌱</span>
+      </div>
+    </div>
+    <div class="screen-content" style="padding-top:8px;">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">🔥</div><span class="stat-num" id="stat-days">0</span><span class="stat-lbl">Güçlü Gün</span></div>
+        <div class="stat-card"><div class="stat-icon">📖</div><span class="stat-num" id="stat-journal">0</span><span class="stat-lbl">Yazı</span></div>
+        <div class="stat-card"><div class="stat-icon">⭐️</div><span class="stat-num" id="stat-ms">0</span><span class="stat-lbl">Hedef</span></div>
+      </div>
+      <div id="milestone-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ AYARLAR ══ -->
+
+  <div id="screen-settings" class="screen">
+    <div class="screen-header">
+      <div style="padding-bottom:12px;">
+        <div class="page-title">Ayarlar</div>
+        <div class="page-sub">Uygulamayı özelleştir</div>
+      </div>
+    </div>
+    <div class="screen-content" style="padding-top:4px;">
+
+```
+  <div class="section-header">Başlangıç Tarihi</div>
+  <div class="settings-row">
+    <div class="settings-row-left">
+      <div class="settings-icon" style="background:rgba(224,123,79,.1);">📅</div>
+      <div>
+        <div class="settings-title">Son İletişim Tarihi</div>
+        <div class="settings-sub" id="start-date-display">—</div>
+      </div>
+    </div>
+    <button onclick="changeDate()" style="background:none;border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:12px;color:var(--t2);cursor:pointer;">Değiştir</button>
+  </div>
+
+  <div class="section-header">Takma Ad</div>
+  <div class="settings-row">
+    <div class="settings-row-left">
+      <div class="settings-icon" style="background:rgba(155,137,196,.1);">👤</div>
+      <div>
+        <div class="settings-title">Topluluk Takma Adı</div>
+        <div class="settings-sub" id="nickname-display">—</div>
+      </div>
+    </div>
+    <button onclick="changeNickname()" style="background:none;border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:12px;color:var(--t2);cursor:pointer;">Değiştir</button>
+  </div>
+
+  <div class="section-header">İstatistikler</div>
+  <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(224,123,79,.08);">🔥</div><div class="settings-title">İletişimsiz Gün</div></div><span class="settings-value" id="set-days">0</span></div>
+  <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(123,174,140,.08);">📖</div><div class="settings-title">Günlük Yazı</div></div><span class="settings-value" id="set-journal">0</span></div>
+  <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(155,137,196,.08);">⭐️</div><div class="settings-title">Tamamlanan Hedef</div></div><span class="settings-value" id="set-ms">0</span></div>
+  <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(212,98,74,.08);">↩</div><div class="settings-title">Yeniden Başlama</div></div><span class="settings-value" id="set-relapse">0</span></div>
+
+  <div class="section-header">Tehlikeli Bölge</div>
+  <div class="settings-row" style="border-color:rgba(212,98,74,.2);">
+    <div class="settings-row-left">
+      <div class="settings-icon" style="background:rgba(212,98,74,.1);">🗑️</div>
+      <div>
+        <div class="settings-title" style="color:var(--danger);">Her Şeyi Sıfırla</div>
+        <div class="settings-sub">Tüm veriler silinir</div>
+      </div>
+    </div>
+    <button onclick="confirmReset()" style="background:none;border:1px solid rgba(212,98,74,.3);border-radius:10px;padding:6px 12px;font-size:12px;color:var(--danger);cursor:pointer;">Sıfırla</button>
+  </div>
+
+  <div style="text-align:center;margin-top:24px;margin-bottom:8px;">
+    <div style="font-size:13px;color:var(--t3);">İyileşiyorsun. Her gün sayılır. 🌱</div>
+    <div style="font-size:11px;color:var(--t3);margin-top:6px;">v1.0 · İletişimsizlik PWA</div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- TAB BAR -->
+
+  <div id="tabbar">
+    <button class="tab-btn active" onclick="showScreen('home',this)" id="tab-home">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Ana Sayfa</span>
+    </button>
+    <button class="tab-btn" onclick="showScreen('journal',this)" id="tab-journal">
+      <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z"/></svg>
+      <span>Günlük</span>
+    </button>
+    <button class="tab-btn" onclick="showScreen('community',this)" id="tab-community">
+      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      <span>Topluluk</span>
+    </button>
+    <button class="tab-btn" onclick="showScreen('chat',this)" id="tab-chat">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      <span>Dost AI</span>
+    </button>
+    <button class="tab-btn" onclick="showScreen('progress',this)" id="tab-progress">
+      <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+      <span>İlerleme</span>
+    </button>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<div id="modal-new-entry" class="modal-overlay hidden" onclick="closeModalOutside(event,'modal-new-entry')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Yeni Yazı</div>
+    <div class="mood-picker" id="mood-picker">
+      <div class="mood-opt selected" data-mood="0" onclick="selectMood(0,this)"><span>✨</span><span>Harika</span></div>
+      <div class="mood-opt" data-mood="1" onclick="selectMood(1,this)"><span>🌱</span><span>İyi</span></div>
+      <div class="mood-opt" data-mood="2" onclick="selectMood(2,this)"><span>🌫️</span><span>Şöyle</span></div>
+      <div class="mood-opt" data-mood="3" onclick="selectMood(3,this)"><span>🌧️</span><span>Zor</span></div>
+      <div class="mood-opt" data-mood="4" onclick="selectMood(4,this)"><span>🌑</span><span>Berbat</span></div>
+    </div>
+    <textarea id="entry-text" placeholder="Bugün ne geçti içinden? Yargılamak yok, sadece yaz..." rows="6" style="margin-bottom:12px;"></textarea>
+    <button class="btn-primary" onclick="saveEntry()">Kaydet</button>
+    <button class="btn-secondary" style="margin-top:8px;" onclick="closeModal('modal-new-entry')">Vazgeç</button>
+  </div>
+</div>
+
+<div id="modal-date" class="modal-overlay hidden" onclick="closeModalOutside(event,'modal-date')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Başlangıç Tarihini Değiştir</div>
+    <div class="modal-sub">Son iletişim tarihini seç. O günden bu yana geçen her gün senin başarın.</div>
+    <input type="date" id="date-picker" style="margin-bottom:14px;">
+    <button class="btn-primary" onclick="saveDate()">Kaydet</button>
+    <button class="btn-secondary" style="margin-top:8px;" onclick="closeModal('modal-date')">Vazgeç</button>
+  </div>
+</div>
+
+<div id="modal-reset" class="modal-overlay hidden" onclick="closeModalOutside(event,'modal-reset')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Her şeyi sıfırlayalım mı?</div>
+    <div class="modal-sub">Tüm günlük yazıların, sayacın ve verilerinin silinecek. Bu işlem geri alınamaz.</div>
+    <button class="btn-danger" onclick="doReset()" style="margin-bottom:8px;">Evet, sıfırla</button>
+    <button class="btn-secondary" onclick="closeModal('modal-reset')">Vazgeç</button>
+  </div>
+</div>
+
+<div id="modal-nickname" class="modal-overlay hidden" onclick="closeModalOutside(event,'modal-nickname')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Takma Adını Değiştir</div>
+    <input type="text" id="nickname-change-input" placeholder="Yeni takma adın" maxlength="20" style="margin-bottom:12px;">
+    <button class="btn-primary" onclick="saveNickname()">Kaydet</button>
+    <button class="btn-secondary" style="margin-top:8px;" onclick="closeModal('modal-nickname')">Vazgeç</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  VERİ — localStorage
+// ════════════════════════════════════════
+const S = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+
+let state = {
+  startDate:  S.get('startDate')  || new Date().toISOString(),
+  entries:    S.get('entries')    || [],
+  relapses:   S.get('relapses')   || 0,
+  nickname:   S.get('nickname')   || '',
+  apiKey:     S.get('apiKey')     || '',
+  chatHistory:S.get('chatHistory')|| [],
+  comMessages:S.get('comMessages')|| {},  // { roomId: [...] }
+  currentRoom:'genel',
+};
+
+const save = () => {
+  S.set('startDate',   state.startDate);
+  S.set('entries',     state.entries);
+  S.set('relapses',    state.relapses);
+  S.set('nickname',    state.nickname);
+  S.set('chatHistory', state.chatHistory);
+  S.set('comMessages', state.comMessages);
+};
+
+// ════════════════════════════════════════
+//  MİLESTONE'LAR
+// ════════════════════════════════════════
+const MILESTONES = [
+  { days:1,   title:'İlk Gün',     icon:'🌅', msg:'Kanka, en zorunu atlattın — başlamayı. Gurur duyuyorum senden.' },
+  { days:3,   title:'72 Saat',     icon:'🔥', msg:'3 gün boyunca elini telefona götürmedin. Bu çok şey.' },
+  { days:7,   title:'Bir Hafta',   icon:'⭐️', msg:'Tam bir hafta! Bak geçen hafta aynı saatte ne hissediyordun.' },
+  { days:14,  title:'İki Hafta',   icon:'🌙', msg:'İki haftadır kendine saygı gösteriyorsun. Sen kazandın.' },
+  { days:30,  title:'Bir Ay',      icon:'🏆', msg:'30 gün. Otuz gün boyunca kendini seçtin. Bu bir dönüşüm.' },
+  { days:60,  title:'İki Ay',      icon:'🌟', msg:'İki ay. Artık o kişiyi düşünme biçimin bile değişti.' },
+  { days:90,  title:'90 Gün',      icon:'💫', msg:'90 gün. Yeni alışkanlıklar bu sürede oluşur. Sen artık farklısın.' },
+  { days:180, title:'Altı Ay',     icon:'🦋', msg:'Yarım yıl özgürsün. Geriye bak bir — ne kadar yol geldin.' },
+  { days:365, title:'Bir Yıl',     icon:'🌈', msg:'Bir tam yıl. İyileştin, büyüdün, yeniden bütün oldun.' },
+];
+
+const MESSAGES = [
+  "İyileşmek düz bir çizgi değil kanka. İyi günler, kötü günler, tekrar iyi günler. Hepsi sürecin parçası.",
+  "Bugün sessiz kalmak, yarın huzur kurmak demek.",
+  "Onu hayatından çıkarmıyorsun — kendini içeri alıyorsun. Fark büyük.",
+  "İletişimi kesmek ceza vermek için değil, kendini korumak için.",
+  "Seni terk etmeni gerektiren bir aşkı hak etmiyorsun. Bunu bir daha oku.",
+  "Her direnişin bir sonrakini kolaylaştırıyor. Kaslar gibi.",
+  "Onu özlemiyorsun aslında — sandığın kişiyi kaybetmenin yasını tutuyorsun.",
+  "Mesafe netlik getirir. Sen şu an cesur işler yapıyorsun.",
+  "Şu an en çok seni ihtiyaç duyan kişi, sensin.",
+  "Bazı bölümlerin bitmesi gerekiyor ki daha iyileri başlasın.",
+  "Değerin hiçbir zaman onun elinde değildi. Hiç olmadı.",
+  "Sessiz kalmak, kendin için yapabileceğin en gürültülü şey bazen.",
+  "Grief is love with nowhere to go. Bırak geçsin içinden.",
+  "İletişimsiz geçen her gün, gelecekteki senin teşekkür ettiği bir gün.",
+  "O dürtü geçecek. Ama iyileşmen geçmeyecek, korursan.",
+  "Yalnız olmak ile yalnızlık hissetmek aynı şey değil. Aradaki farkı yeniden keşfet.",
+  "Bu sessizlik boşluk değil — daha iyisi için alan açıyor.",
+  "Ne kadar güçlü olduğunu henüz bilmiyorsun. Ama öğreniyorsun.",
+  "Baştan başlamıyorsun. Farklı bir şekilde başlıyorsun.",
+  "Kendine verdiğin sevgi, en kalıcı olanı.",
+];
+
+// ════════════════════════════════════════
+//  TIMER
+// ════════════════════════════════════════
+function getElapsed() {
+  const start = new Date(state.startDate);
+  const now = new Date();
+  const diff = Math.max(0, Math.floor((now - start) / 1000));
+  return {
+    total: diff,
+    days:  Math.floor(diff / 86400),
+    hours: Math.floor((diff % 86400) / 3600),
+    mins:  Math.floor((diff % 3600) / 60),
+    secs:  diff % 60,
+  };
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function updateTimer() {
+  const e = getElapsed();
+  document.getElementById('t-days').textContent  = pad(e.days);
+  document.getElementById('t-hours').textContent = pad(e.hours);
+  document.getElementById('t-mins').textContent  = pad(e.mins);
+  document.getElementById('t-secs').textContent  = pad(e.secs);
+  document.getElementById('streak-days').textContent = e.days;
+  document.getElementById('stat-days').textContent   = e.days;
+  document.getElementById('set-days').textContent    = e.days;
+
+  const d = new Date(state.startDate);
+  const locale = 'tr-TR';
+  document.getElementById('timer-since').textContent =
+    d.toLocaleDateString(locale, { day:'numeric', month:'long', year:'numeric' }) + ' tarihinden beri';
+  document.getElementById('start-date-display').textContent =
+    d.toLocaleDateString(locale, { day:'numeric', month:'long', year:'numeric' });
+
+  // Greeting
+  const h = new Date().getHours();
+  document.getElementById('greeting').textContent =
+    h < 12 ? 'Günaydın 🌅' : h < 17 ? 'İyi günler ☀️' : 'İyi akşamlar 🌙';
+
+  // Next milestone
+  const achieved = MILESTONES.filter(m => e.days >= m.days);
+  const next = MILESTONES.find(m => e.days < m.days);
+  document.getElementById('stat-ms').textContent  = achieved.length;
+  document.getElementById('set-ms').textContent   = achieved.length;
+  document.getElementById('ms-count-sub').textContent = `${achieved.length} / ${MILESTONES.length} hedef`;
+  document.getElementById('latest-ms-icon').textContent = achieved.length ? achieved[achieved.length-1].icon : '🌱';
+
+  if (next) {
+    const prev = achieved.length ? achieved[achieved.length-1].days : 0;
+    const pct = Math.round(((e.days - prev) / (next.days - prev)) * 100);
+    document.getElementById('next-ms-icon').textContent  = next.icon;
+    document.getElementById('next-ms-title').textContent = next.title;
+    document.getElementById('next-ms-days').textContent  = `${next.days - e.days} gün kaldı`;
+    document.getElementById('ms-progress').style.width   = pct + '%';
+    document.getElementById('next-milestone-card').style.display = 'block';
+  } else {
+    document.getElementById('next-milestone-card').style.display = 'none';
+  }
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+
+// ════════════════════════════════════════
+//  GÜNLÜK MESAJ
+// ════════════════════════════════════════
+function getDailyMsg() {
+  const today = new Date().toDateString();
+  const saved = S.get('dailyMsg');
+  if (saved && saved.date === today) return saved.msg;
+  const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
+  S.set('dailyMsg', { date: today, msg });
+  return msg;
+}
+document.getElementById('daily-msg').textContent = getDailyMsg();
+
+// ════════════════════════════════════════
+//  NAVIGASYON
+// ════════════════════════════════════════
+function showScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  if (name === 'community') initCommunity();
+  if (name === 'chat') initChat();
+  if (name === 'progress') renderMilestones();
+  if (name === 'settings') renderSettings();
+  if (name === 'journal') renderJournal();
+}
+
+// ════════════════════════════════════════
+//  RELAPSE
+// ════════════════════════════════════════
+function showRelapse() {
+  document.getElementById('relapse-btn').style.display = 'none';
+  document.getElementById('relapse-expanded').classList.add('show');
+}
+function hideRelapse() {
+  document.getElementById('relapse-btn').style.display = 'flex';
+  document.getElementById('relapse-expanded').classList.remove('show');
+}
+function doRelapse() {
+  state.startDate = new Date().toISOString();
+  state.relapses++;
+  save();
+  hideRelapse();
+  updateTimer();
+}
+
+// ════════════════════════════════════════
+//  GÜNLÜK
+// ════════════════════════════════════════
+const MOODS = [
+  { emoji:'✨', label:'Harika' },
+  { emoji:'🌱', label:'İyi' },
+  { emoji:'🌫️', label:'Şöyle' },
+  { emoji:'🌧️', label:'Zor' },
+  { emoji:'🌑', label:'Berbat' },
+];
+let selectedMood = 0;
+
+function selectMood(idx, el) {
+  selectedMood = idx;
+  document.querySelectorAll('.mood-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function openNewEntry() {
+  selectedMood = 0;
+  document.querySelectorAll('.mood-opt').forEach((e,i) => e.classList.toggle('selected', i===0));
+  document.getElementById('entry-text').value = '';
+  openModal('modal-new-entry');
+}
+
+function saveEntry() {
+  const text = document.getElementById('entry-text').value.trim();
+  if (!text) return;
+  const entry = {
+    id: Date.now().toString(),
+    text,
+    mood: selectedMood,
+    date: new Date().toISOString(),
+  };
+  state.entries.unshift(entry);
+  save();
+  closeModal('modal-new-entry');
+  renderJournal();
+}
+
+function renderJournal() {
+  const list = document.getElementById('journal-list');
+  document.getElementById('journal-count').textContent = state.entries.length + ' yazı';
+  document.getElementById('stat-journal').textContent  = state.entries.length;
+  document.getElementById('set-journal').textContent   = state.entries.length;
+
+  if (!state.entries.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Henüz hiç yazmadın</div><div class="empty-sub">İçini dökmek iyileşmenin bir parçası kanka. Bugün bir şeyler yaz.</div><button class="btn-primary" onclick="openNewEntry()">İlk yazını yaz</button></div>`;
+    return;
+  }
+
+  list.innerHTML = state.entries.map(e => {
+    const m = MOODS[e.mood];
+    const d = new Date(e.date).toLocaleDateString('tr-TR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    return `<div class="journal-entry-card fade-in">
+      <div class="entry-meta">
+        <span class="mood-badge mood-${e.mood}">${m.emoji} ${m.label}</span>
+        <span class="entry-date">${d}</span>
+      </div>
+      <div class="entry-preview">${e.text}</div>
+    </div>`;
+  }).join('');
+}
+renderJournal();
+
+// ════════════════════════════════════════
+//  İLERLEME
+// ════════════════════════════════════════
+function renderMilestones() {
+  const days = getElapsed().days;
+  const list = document.getElementById('milestone-list');
+  list.innerHTML = MILESTONES.map(m => {
+    const achieved = days >= m.days;
+    const isNext = !achieved && days < m.days && MILESTONES.find(x => days < x.days)?.days === m.days;
+    const cls = achieved ? 'achieved' : isNext ? 'next' : 'locked';
+    const right = achieved
+      ? `<span class="ms-check">✓</span>`
+      : isNext ? `<span style="font-size:11px;color:var(--sun);">${m.days - days} gün</span>` : '';
+    const desc = achieved ? m.msg : isNext ? `${m.days - days} gün kaldı` : `${m.days} gün`;
+    return `<div class="milestone-row ${cls} fade-in">
+      <div class="ms-icon" style="${!achieved&&!isNext?'opacity:.3':''}">${m.icon}</div>
+      <div style="flex:1;">
+        <div class="ms-title">${m.title}</div>
+        <div class="ms-desc">${desc}</div>
+      </div>
+      ${right}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  AYARLAR
+// ════════════════════════════════════════
+function renderSettings() {
+  document.getElementById('set-relapse').textContent  = state.relapses;
+  document.getElementById('nickname-display').textContent = state.nickname || '—';
+}
+
+function changeDate() {
+  const d = new Date(state.startDate);
+  document.getElementById('date-picker').value = d.toISOString().split('T')[0];
+  openModal('modal-date');
+}
+function saveDate() {
+  const val = document.getElementById('date-picker').value;
+  if (!val) return;
+  state.startDate = new Date(val).toISOString();
+  save(); updateTimer(); closeModal('modal-date');
+}
+
+function changeNickname() {
+  document.getElementById('nickname-change-input').value = state.nickname;
+  openModal('modal-nickname');
+}
+function saveNickname() {
+  const n = document.getElementById('nickname-change-input').value.trim();
+  if (n.length < 2) return;
+  state.nickname = n; save();
+  renderSettings(); initCommunity();
+  closeModal('modal-nickname');
+}
+
+function confirmReset() { openModal('modal-reset'); }
+function doReset() {
+  localStorage.clear();
+  location.reload();
+}
+
+// ════════════════════════════════════════
+//  TOPLULUK
+// ════════════════════════════════════════
+const COM_COLORS = ['rgba(224,123,79,.12)', 'rgba(123,174,140,.12)', 'rgba(155,137,196,.12)', 'rgba(212,120,138,.12)', 'rgba(91,160,138,.12)'];
+const COM_TEXT   = ['var(--sun)', 'var(--forest)', 'var(--lav)', 'var(--rose)', 'var(--forest)'];
+
+function avatarColor(name, idx) {
+  const i = (name.charCodeAt(0) || 0) % COM_COLORS.length;
+  return idx === 0 ? COM_COLORS[i] : COM_TEXT[i];
+}
+
+function initCommunity() {
+  if (!state.nickname) {
+    document.getElementById('nickname-setup').style.display = 'flex';
+    document.getElementById('community-chat').style.display = 'none';
+  } else {
+    document.getElementById('nickname-setup').style.display = 'none';
+    document.getElementById('community-chat').style.display = 'flex';
+    document.getElementById('com-avatar-hdr').textContent = state.nickname.charAt(0).toUpperCase();
+    document.getElementById('com-nickname-hdr').textContent = state.nickname;
+    document.getElementById('online-count').textContent = (12 + Math.floor(Math.random()*20)) + ' kişi burada';
+    switchRoom(state.currentRoom, document.querySelector(`[data-room="${state.currentRoom}"]`));
+  }
+}
+
+document.getElementById('nickname-input').addEventListener('input', function() {
+  document.getElementById('nick-counter').textContent = this.value.length + '/20';
+});
+
+function joinCommunity() {
+  const n = document.getElementById('nickname-input').value.trim();
+  if (n.length < 2) { document.getElementById('nickname-input').style.borderColor = 'var(--danger)'; return; }
+  state.nickname = n; save();
+  initCommunity();
+}
+
+function switchRoom(roomId, el) {
+  state.currentRoom = roomId;
+  document.querySelectorAll('.room-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderComMessages();
+}
+
+function renderComMessages() {
+  const msgs = (state.comMessages[state.currentRoom] || []);
+  const el = document.getElementById('com-messages');
+
+  if (!msgs.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:40px 20px;"><div class="empty-icon">💬</div><div class="empty-title">Henüz kimse yazmamış</div><div class="empty-sub">İlk sen başla. Buradaki herkes aynı şeyi yaşıyor.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = msgs.map(m => {
+    const isOwn = m.nickname === state.nickname;
+    const bg  = avatarColor(m.nickname, 0);
+    const clr = avatarColor(m.nickname, 1);
+    const streakTxt = m.daysStreak === 0 ? 'Yeni başladı' : `${m.daysStreak} gündür güçlü`;
+    const t = new Date(m.timestamp).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    if (isOwn) {
+      return `<div class="com-msg" style="align-items:flex-end;">
+        <div class="com-bub" style="background:var(--sun);color:white;border:none;border-radius:14px;border-bottom-right-radius:4px;margin-left:auto;box-shadow:0 2px 8px rgba(224,123,79,.25);">${m.text}</div>
+      </div>`;
+    }
+    return `<div class="com-msg fade-in">
+      <div class="com-msg-meta">
+        <div class="com-avatar" style="background:${bg};color:${clr};">${m.nickname.charAt(0).toUpperCase()}</div>
+        <span class="com-name">${m.nickname}</span>
+        <span class="com-streak">${streakTxt}</span>
+        <span class="com-time">${t}</span>
+      </div>
+      <div class="com-bub">${m.text}</div>
+    </div>`;
+  }).join('');
+
+  el.scrollTop = el.scrollHeight;
+}
+
+function sendCommunityMsg() {
+  const text = document.getElementById('com-text').value.trim();
+  if (!text || !state.nickname) return;
+  const days = getElapsed().days;
+  const msg = { nickname: state.nickname, text, timestamp: Date.now(), daysStreak: days };
+  if (!state.comMessages[state.currentRoom]) state.comMessages[state.currentRoom] = [];
+  state.comMessages[state.currentRoom].push(msg);
+  save();
+  document.getElementById('com-text').value = '';
+  renderComMessages();
+}
+
+// ════════════════════════════════════════
+//  DOST AI
+// ════════════════════════════════════════
+const QUICK_SUGGESTIONS = [
+  'Onu çok özlüyorum ya, ne yapacağımı bilmiyorum',
+  'Telefonu elime alıp mesaj atacaktım neredeyse',
+  'Neden bu kadar zor anlamıyorum ki',
+  'Sanırım ben yanlış bir şeyler yaptım bu ilişkide',
+];
+
+function initChat() {
+  const msgs = document.getElementById('chat-messages');
+  if (msgs.children.length > 0) return; // zaten başladıysa
+  renderChatHistory();
+  if (!state.chatHistory.length) showWelcomeChat();
+}
+
+function showWelcomeChat() {
+  const days = getElapsed().days;
+  const msgs = document.getElementById('chat-messages');
+  const welcomeText = days > 0
+    ? `Ya, ${days} gün olmuş. Az değil bu kanka. Ne var kafanda?`
+    : 'Naber. Ne düşünüyorsun, dinliyorum.';
+
+  msgs.innerHTML = `
+    <div class="chat-msg fade-in">
+      <div class="chat-ai-av">🫂</div>
+      <div class="chat-bubble">${welcomeText}</div>
+    </div>
+    <div id="quick-sugs" style="margin-top:4px;">
+      <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700;">bir yerden başlayalım</div>
+      ${QUICK_SUGGESTIONS.map(s => `<button class="quick-sug-btn" onclick="useSuggestion('${s.replace(/'/g,"\\'")}')"><span>${s}</span><span style="color:var(--sun);opacity:.5;font-size:16px;">↑</span></button>`).join('')}
+    </div>`;
+}
+
+function useSuggestion(text) {
+  document.getElementById('chat-input').value = text;
+  document.getElementById('quick-sugs')?.remove();
+  sendChatMsg();
+}
+
+function renderChatHistory() {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = state.chatHistory.map(m => {
+    if (m.role === 'user') {
+      return `<div class="chat-msg user fade-in"><div class="chat-bubble user">${m.content}</div></div>`;
+    }
+    return `<div class="chat-msg fade-in"><div class="chat-ai-av">🫂</div><div class="chat-bubble">${m.content}</div></div>`;
+  }).join('');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function clearChat() {
+  state.chatHistory = []; save();
+  document.getElementById('chat-messages').innerHTML = '';
+  showWelcomeChat();
+}
+
+function chatKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMsg(); }
+}
+
+async function sendChatMsg() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Kullanıcı mesajını ekle
+  input.value = ''; autoResize(input);
+  document.getElementById('quick-sugs')?.remove();
+  state.chatHistory.push({ role:'user', content: text });
+  renderChatHistory();
+
+  // Yazıyor göstergesi
+  const msgs = document.getElementById('chat-messages');
+  const typing = document.createElement('div');
+  typing.className = 'chat-msg fade-in';
+  typing.id = 'typing-indicator';
+  typing.innerHTML = `<div class="chat-ai-av">🫂</div><div class="chat-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('ai-status-txt').textContent = 'yazıyor...';
+  document.getElementById('chat-send-btn').disabled = true;
+
+  try {
+    const reply = await callClaude(text);
+    typing.remove();
+    state.chatHistory.push({ role:'assistant', content: reply });
+    save();
+    renderChatHistory();
+  } catch(err) {
+    typing.remove();
+    const errMsg = err.message === 'NO_KEY'
+      ? 'API anahtarı eksik. Ayarlar\'dan ekle.'
+      : 'Şu an bağlanamıyorum. Biraz sonra tekrar dene.';
+    state.chatHistory.push({ role:'assistant', content: errMsg });
+    renderChatHistory();
+  }
+
+  document.getElementById('ai-status-txt').textContent = 'dinlemeye hazır';
+  document.getElementById('chat-send-btn').disabled = false;
+}
+
+async function callClaude(userText) {
+  const apiKey = S.get('apiKey') || prompt('Anthropic API anahtarını gir (console.anthropic.com):');
+  if (!apiKey) throw new Error('NO_KEY');
+  S.set('apiKey', apiKey);
+
+  const days = getElapsed().days;
+  const systemPrompt = `Sen bir yapay zeka değil, yıllar önce psikoloji okumuş ama hayatın içinde pişmiş bir arkadaşsın. Ayrılık yaşayan, iletişimi kesmeye çalışan birine eşlik ediyorsun. Kişi ${days} gündür iletişimsizlik sürecinde.
+
+Kısa yaz. 2-4 cümle. WhatsApp mesajı gibi. "Kanka", "ya", "abi", "dostum" kullan ama her cümlede değil.
+Gerektiğinde hafifçe dalga geç — sevgiyle. "3 gündür stalk atıyorsun, ne öğrendin?" gibi.
+"Seni anlıyorum / Bu gerçekten çok zor" gibi robotik cümle KULLANMA.
+Vaaz verme. Bir şey söyle, bırak. Bazen sadece "evet lan zor bu" yeterli.
+Türkçe. Kısa. Gerçek.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-opus-4-6',
+      max_tokens: 400,
+      system: systemPrompt,
+      messages: state.chatHistory.slice(-20).map(m => ({ role: m.role, content: m.content })),
+    }),
+  });
+
+  if (!resp.ok) throw new Error('API error: ' + resp.status);
+  const data = await resp.json();
+  return data.content[0]?.text || 'Bir şeyler ters gitti.';
+}
+
+// ════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function closeModalOutside(e, id) { if (e.target.id === id) closeModal(id); }
+
+// ════════════════════════════════════════
+//  UTIL
+// ════════════════════════════════════════
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+</script>
+
+</body>
+</html>
