@@ -1,1 +1,514 @@
+<!DOCTYPE html>
 
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Top Bizde</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;-webkit-font-smoothing:antialiased;margin:0;padding:0;}
+    body{background:#f0f2f5;font-family:'Nunito Sans',system-ui,sans-serif;}
+    ::-webkit-scrollbar{width:0;height:0}
+    input,button{-webkit-appearance:none;appearance:none;}
+    @keyframes lp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const C = {
+      bg:"#f0f2f5", card:"#ffffff", border:"#e4e7ed", sub:"#f8f9fb",
+      text:"#1a1d23", muted:"#8a909e", accent:"#2563eb",
+      live:"#ef4444", green:"#16a34a", gold:"#d97706",
+    };
+
+    const LOGOS = {
+      "Galatasaray": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Galatasaray_Sports_Club_Logo.svg/180px-Galatasaray_Sports_Club_Logo.svg.png",
+      "Fenerbahçe":  "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Fenerbah%C3%A7e_SK_logo_%282023%29.svg/180px-Fenerbah%C3%A7e_SK_logo_%282023%29.svg.png",
+      "Beşiktaş":    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Besiktas_JK.svg/180px-Besiktas_JK.svg.png",
+      "Trabzonspor": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Trabzonspor_logo.svg/180px-Trabzonspor_logo.svg.png",
+      "Real Madrid": "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/180px-Real_Madrid_CF.svg.png",
+      "Man City":    "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/180px-Manchester_City_FC_badge.svg.png",
+      "Arsenal":     "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/180px-Arsenal_FC.svg.png",
+      "Chelsea":     "https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/180px-Chelsea_FC.svg.png",
+      "Liverpool":   "https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/180px-Liverpool_FC.svg.png",
+      "PSG":         "https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/180px-Paris_Saint-Germain_F.C..svg.png",
+      "Barcelona":   "https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/180px-FC_Barcelona_%28crest%29.svg.png",
+      "Atletico":    "https://upload.wikimedia.org/wikipedia/en/thumb/f/f4/Atletico_Madrid_2017_logo.svg/180px-Atletico_Madrid_2017_logo.svg.png",
+      "Dortmund":    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/180px-Borussia_Dortmund_logo.svg.png",
+      "Bayern":      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/180px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
+    };
+    const COLORS = {
+      "Galatasaray":"#e8a000","Fenerbahçe":"#1a4fbf","Beşiktaş":"#333",
+      "Trabzonspor":"#991b1b","Real Madrid":"#c8a200","Man City":"#1d6fa4",
+      "Arsenal":"#c01a1a","Chelsea":"#1a44a8","Liverpool":"#c01a2e",
+      "PSG":"#00357a","Barcelona":"#9b1a5c","Atletico":"#b81a1a",
+      "Dortmund":"#e09000","Bayern":"#c01a2e",
+    };
+    const col  = n => COLORS[n] || "#2563eb";
+    const logo = n => LOGOS[n]  || null;
+
+    const LEAGUES = [
+      { id:1, name:"SÜPER LİG", flag:"🇹🇷",
+        matches:[
+          { id:101, home:"Galatasaray", away:"Fenerbahçe", time:"20:00", status:"upcoming", score:null, minute:null,
+            h2h:[{d:"15.10.24",h:"Fenerbahçe",s:"2-1",a:"Galatasaray"},{d:"12.04.24",h:"Galatasaray",s:"0-0",a:"Fenerbahçe"},{d:"08.01.24",h:"Galatasaray",s:"3-2",a:"Fenerbahçe"}],
+            form:{home:["G","G","B","G","M"],away:["G","M","G","G","B"]},
+            stats:{possession:[55,45],shots:[0,0],ontarget:[0,0],corners:[0,0],fouls:[0,0],yellow:[0,0]},
+            lineup:{home:["Muslera","Sanchez","Nelsson","Abdulkerim","Boey","Demirbay","Torreira","Barış","Ziyech","İcardi","Osimhen"],away:["Livakovic","Osayi","Djiku","Becao","Ferdi","Fred","İsmail","Sebastian","Tadic","Dzeko","Youssef"]},
+          },
+          { id:102, home:"Beşiktaş", away:"Trabzonspor", time:"22:00", status:"live", score:[1,1], minute:54,
+            h2h:[{d:"20.10.24",h:"Trabzonspor",s:"3-1",a:"Beşiktaş"},{d:"03.03.24",h:"Beşiktaş",s:"2-2",a:"Trabzonspor"}],
+            form:{home:["B","G","G","M","G"],away:["G","G","M","B","G"]},
+            stats:{possession:[52,48],shots:[9,7],ontarget:[4,3],corners:[4,3],fouls:[12,9],yellow:[2,1]},
+            lineup:{home:["Mert Günok","Tayyip","Can","Al-Musrati","Bozdoğan","Rafa Silva","Semih","Ernst","Ghezzal","Gedson","Batshuayi"],away:["Uğurcan","Aru","Vitor Hugo","Taha Y","Dorukhan","Bakasetas","Özdemir","Visca","N'Sakala","Gervinho","Cornelius"]},
+          },
+        ]
+      },
+      { id:2, name:"ŞAMPİYONLAR LİGİ", flag:"⭐",
+        matches:[
+          { id:201, home:"Real Madrid", away:"Man City", time:"22:00", status:"live", score:[2,1], minute:71,
+            h2h:[{d:"17.04.24",h:"Man City",s:"1-1",a:"Real Madrid"},{d:"09.04.24",h:"Real Madrid",s:"3-3",a:"Man City"},{d:"17.05.23",h:"Real Madrid",s:"1-0",a:"Man City"}],
+            form:{home:["G","G","G","B","G"],away:["G","G","M","G","G"]},
+            stats:{possession:[58,42],shots:[14,9],ontarget:[6,4],corners:[6,3],fouls:[11,14],yellow:[1,3]},
+            lineup:{home:["Courtois","Carvajal","Militão","Rüdiger","Mendy","Valverde","Tchouaméni","Kroos","Bellingham","Vinicius","Mbappé"],away:["Ederson","Walker","Dias","Akanji","Gvardiol","Rodri","De Bruyne","B.Silva","Foden","Doku","Haaland"]},
+          },
+          { id:202, home:"Arsenal", away:"PSG", time:"22:00", status:"upcoming", score:null, minute:null,
+            h2h:[{d:"01.10.24",h:"PSG",s:"2-0",a:"Arsenal"},{d:"07.03.23",h:"Arsenal",s:"1-1",a:"PSG"}],
+            form:{home:["G","G","M","G","G"],away:["G","M","G","G","B"]},
+            stats:{possession:[50,50],shots:[0,0],ontarget:[0,0],corners:[0,0],fouls:[0,0],yellow:[0,0]},
+            lineup:{home:["Raya","White","Saliba","Gabriel","Calafiori","Odegaard","Rice","Havertz","Saka","Trossard","Martinelli"],away:["Donnarumma","Hakimi","Marquinhos","Pacho","N.Mendes","Vitinha","Zaire-Emery","Ruiz","Dembele","Barcola","Ramos"]},
+          },
+          { id:203, home:"Atletico", away:"Dortmund", time:"22:00", status:"finished", score:[2,0], minute:90,
+            h2h:[{d:"22.10.24",h:"Dortmund",s:"1-0",a:"Atletico"},{d:"06.11.23",h:"Atletico",s:"4-2",a:"Dortmund"}],
+            form:{home:["G","G","G","B","G"],away:["M","G","B","G","M"]},
+            stats:{possession:[46,54],shots:[13,11],ontarget:[5,3],corners:[5,7],fouls:[15,10],yellow:[2,2]},
+            lineup:{home:[],away:[]},
+          },
+        ]
+      },
+      { id:3, name:"PREMIER LEAGUE", flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+        matches:[
+          { id:301, home:"Chelsea", away:"Liverpool", time:"22:45", status:"upcoming", score:null, minute:null,
+            h2h:[{d:"13.04.24",h:"Chelsea",s:"0-2",a:"Liverpool"},{d:"02.10.23",h:"Liverpool",s:"1-2",a:"Chelsea"}],
+            form:{home:["G","M","G","M","G"],away:["G","G","G","G","M"]},
+            stats:{possession:[50,50],shots:[0,0],ontarget:[0,0],corners:[0,0],fouls:[0,0],yellow:[0,0]},
+            lineup:{home:["Sanchez","Gusto","Fofana","Colwill","Cucurella","Caicedo","Enzo","Palmer","Neto","Jackson","Sancho"],away:["Alisson","A-Arnold","Konaté","Van Dijk","Robertson","Gravenberch","Szoboszlai","Mac Allister","Salah","Gakpo","Diaz"]},
+          },
+          { id:302, home:"Bayern", away:"Barcelona", time:"22:45", status:"upcoming", score:null, minute:null,
+            h2h:[{d:"02.11.22",h:"Bayern",s:"2-0",a:"Barcelona"},{d:"06.12.22",h:"Barcelona",s:"0-2",a:"Bayern"}],
+            form:{home:["G","G","G","M","G"],away:["G","M","B","G","G"]},
+            stats:{possession:[50,50],shots:[0,0],ontarget:[0,0],corners:[0,0],fouls:[0,0],yellow:[0,0]},
+            lineup:{home:[],away:[]},
+          },
+        ]
+      },
+    ];
+
+    const PRED_OPTS = [
+      {key:"ms1",label:"MS 1",color:"#16a34a"},
+      {key:"msx",label:"MS X",color:"#d97706"},
+      {key:"ms2",label:"MS 2",color:"#dc2626"},
+      {key:"kg", label:"KG Var",color:"#7c3aed"},
+      {key:"ust",label:"2.5 Üst",color:"#0891b2"},
+    ];
+    const PC = k => PRED_OPTS.find(p=>p.key===k)?.color||"#888";
+    const PL = k => PRED_OPTS.find(p=>p.key===k)?.label||k;
+
+    const SEED = {
+      101:[
+        {id:1,nick:"DerbiUstası",pred:"ms1",msg:"Osimhen bu gece sahnede olacak 🔥",ts:Date.now()-290000,pro:true},
+        {id:2,nick:"SarıKanarya99",pred:"ms2",msg:"Fenerbahçe deplasmanda daha iyi bu sezon",ts:Date.now()-211000,pro:false},
+        {id:3,nick:"TaktikAdam",pred:"msx",msg:"Derbi = beraberlik riski yüksek bence",ts:Date.now()-140000,pro:true},
+        {id:4,nick:"GsliMert",pred:"ms1",msg:"Ziyech + İcardi kombinasyonu 🦁",ts:Date.now()-72000,pro:false},
+        {id:5,nick:"UltrasFB",pred:"ms2",msg:"Dzeko + Youssef çok güçlü ikili",ts:Date.now()-18000,pro:true},
+      ],
+      201:[
+        {id:1,nick:"MadridMagic",pred:"ms1",msg:"Bernabeu sihri yine devreye girecek 🤍",ts:Date.now()-380000,pro:true},
+        {id:2,nick:"CitizenBlue",pred:"ms2",msg:"Haaland 2 gol atar bu gece kesinlikle",ts:Date.now()-260000,pro:false},
+        {id:3,nick:"UCLAnaliz",pred:"ust",msg:"İki takım da hücum ağırlıklı, gol bolluğu garantili",ts:Date.now()-150000,pro:true},
+        {id:4,nick:"BellinghamFan",pred:"ms1",msg:"Bellingham golünü attı! Döndük! ⚽",ts:Date.now()-60000,pro:false},
+        {id:5,nick:"CitizenBlue",pred:"ms2",msg:"Haaland tek başına bitirir bunu bekleyin",ts:Date.now()-12000,pro:false},
+      ],
+      general:[
+        {id:1,nick:"KralFutbol",pred:null,msg:"Bu gece 3 maç aynı anda 🔥 yorgunluk garantili",ts:Date.now()-400000,pro:true},
+        {id:2,nick:"SarıKanarya99",pred:null,msg:"UCL bu gece çok daha iyi bence",ts:Date.now()-300000,pro:false},
+        {id:3,nick:"TaktikAdam",pred:null,msg:"Derbi gecesi ayrı bir heyecan",ts:Date.now()-180000,pro:true},
+        {id:4,nick:"GsliMert",pred:null,msg:"Herkese iyi seyirler kankalar ⚽",ts:Date.now()-90000,pro:false},
+      ],
+    };
+
+    function timeAgo(ts) {
+      const s=Math.floor((Date.now()-ts)/1000);
+      if(s<60) return s+"s";
+      if(s<3600) return Math.floor(s/60)+"dk";
+      return Math.floor(s/3600)+"sa";
+    }
+
+    function TeamLogo({name, size=28, style={}}) {
+      const src=logo(name);
+      if(!src) return <div style={{width:size,height:size,borderRadius:4,background:"#e5e7eb",display:"flex",alignItems:"center",justifyContent:"center",fontSize:size*0.5,flexShrink:0,...style}}>⚽</div>;
+      return <img src={src} width={size} height={size} alt={name} style={{objectFit:"contain",flexShrink:0,...style}} onError={e=>e.target.style.opacity=0}/>;
+    }
+
+    function FormDot({r}) {
+      const bg=r==="G"?"#16a34a":r==="B"?"#dc2626":"#d97706";
+      return <div style={{width:26,height:26,borderRadius:"50%",background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff",flexShrink:0}}>{r}</div>;
+    }
+
+    function StatBar({label,h,a}) {
+      const t=(h+a)||1;
+      return (
+        <div style={{marginBottom:13}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontSize:13,fontWeight:800,color:C.text}}>{h}</span>
+            <span style={{fontSize:11,color:C.muted,fontWeight:600}}>{label}</span>
+            <span style={{fontSize:13,fontWeight:800,color:C.text}}>{a}</span>
+          </div>
+          <div style={{height:5,background:C.border,borderRadius:3,overflow:"hidden",display:"flex"}}>
+            <div style={{width:(h/t*100)+"%",background:"linear-gradient(90deg,#2563eb,#60a5fa)",borderRadius:3}}/>
+            <div style={{flex:1,background:"linear-gradient(90deg,#ef4444,#f87171)"}}/>
+          </div>
+        </div>
+      );
+    }
+
+    function ChatPanel({matchId}) {
+      const key=matchId||"general";
+      const [msgs,setMsgs]=useState(()=>(SEED[key]||[]).slice().reverse());
+      const [input,setInput]=useState("");
+      const [myPred,setMyPred]=useState(null);
+      const [,setTick]=useState(0);
+      const inputRef=useRef(null);
+      useEffect(()=>{const t=setInterval(()=>setTick(x=>x+1),1000);return()=>clearInterval(t);},[]);
+      const send=()=>{
+        if(!input.trim()) return;
+        setMsgs(p=>[{id:Date.now(),nick:"Sen",pred:myPred,msg:input,ts:Date.now(),pro:false},...p]);
+        setInput(""); inputRef.current&&inputRef.current.focus();
+      };
+      return (
+        <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg}}>
+          {matchId && (
+            <div style={{padding:"10px 14px",borderBottom:"1px solid "+C.border,background:C.card,flexShrink:0}}>
+              <div style={{fontSize:10,fontWeight:700,color:C.muted,letterSpacing:1,marginBottom:8}}>TAHMİNİNİ SEÇ</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {PRED_OPTS.map(p=>(
+                  <button key={p.key} onClick={()=>setMyPred(myPred===p.key?null:p.key)} style={{padding:"6px 12px",borderRadius:6,cursor:"pointer",border:"1.5px solid "+(myPred===p.key?p.color:C.border),background:myPred===p.key?p.color:C.card,color:myPred===p.key?"#fff":C.muted,fontSize:12,fontWeight:700,fontFamily:"'Nunito Sans',sans-serif"}}>{p.label}</button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div style={{flex:1,overflowY:"auto",padding:"12px 14px",display:"flex",flexDirection:"column",gap:12}}>
+            {msgs.map(m=>(
+              <div key={m.id} style={{paddingBottom:12,borderBottom:"1px solid "+C.border}}>
+                <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:5,flexWrap:"wrap"}}>
+                  <div style={{width:30,height:30,borderRadius:"50%",background:"linear-gradient(135deg,#dbeafe,#bfdbfe)",border:"1.5px solid #93c5fd",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:800,color:"#1d4ed8",flexShrink:0}}>{m.nick[0]}</div>
+                  <span style={{fontSize:13,fontWeight:800,color:m.pro?C.gold:C.text,fontFamily:"'Nunito Sans',sans-serif"}}>
+                    {m.nick}
+                    {m.pro && <span style={{marginLeft:5,fontSize:9,background:C.gold,color:"#fff",padding:"1px 5px",borderRadius:4,fontWeight:800}}>PRO</span>}
+                  </span>
+                  {m.pred && <span style={{fontSize:10,fontWeight:800,padding:"3px 9px",borderRadius:5,background:PC(m.pred),color:"#fff",fontFamily:"'Oswald',sans-serif"}}>{PL(m.pred)}</span>}
+                  <span style={{marginLeft:"auto",fontSize:11,color:C.muted,flexShrink:0}}>{timeAgo(m.ts)}</span>
+                </div>
+                <div style={{marginLeft:38,fontSize:14,color:"#374151",lineHeight:1.5,fontFamily:"'Nunito Sans',sans-serif"}}>{m.msg}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{padding:"10px 12px",borderTop:"1px solid "+C.border,background:C.card,flexShrink:0}}>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              <input ref={inputRef} value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Yorum yaz..." style={{flex:1,background:C.sub,border:"1.5px solid "+C.border,borderRadius:24,padding:"10px 16px",fontSize:14,outline:"none",fontFamily:"'Nunito Sans',sans-serif",color:C.text}}/>
+              <button onClick={send} style={{width:42,height:42,borderRadius:"50%",border:"none",background:C.accent,color:"#fff",fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>➤</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function StatsTab({match}) {
+      const [section,setSection]=useState("stats");
+      const hc=col(match.home), ac=col(match.away);
+      return (
+        <div style={{height:"100%",display:"flex",flexDirection:"column",background:C.bg}}>
+          <div style={{display:"flex",padding:"10px 12px",gap:6,borderBottom:"1px solid "+C.border,background:C.card,flexShrink:0,overflowX:"auto"}}>
+            {[{id:"stats",label:"İstatistik"},{id:"form",label:"Form & H2H"},{id:"lineup",label:"İlk 11"}].map(s=>(
+              <button key={s.id} onClick={()=>setSection(s.id)} style={{padding:"7px 16px",borderRadius:20,border:"none",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,background:section===s.id?C.accent:"#eef2ff",color:section===s.id?"#fff":"#4b5563",fontSize:12,fontWeight:700,fontFamily:"'Nunito Sans',sans-serif"}}>{s.label}</button>
+            ))}
+          </div>
+          <div style={{flex:1,overflowY:"auto",padding:"16px 14px"}}>
+            {section==="stats" && (
+              <div>
+                <div style={{fontSize:10,fontWeight:700,color:C.muted,letterSpacing:1.2,marginBottom:14}}>MAÇ İSTATİSTİKLERİ</div>
+                <StatBar label="Topa Sahip %" h={match.stats.possession[0]} a={match.stats.possession[1]}/>
+                <StatBar label="Şut" h={match.stats.shots[0]} a={match.stats.shots[1]}/>
+                <StatBar label="İsabetli Şut" h={match.stats.ontarget[0]} a={match.stats.ontarget[1]}/>
+                <StatBar label="Korner" h={match.stats.corners[0]} a={match.stats.corners[1]}/>
+                <StatBar label="Faul" h={match.stats.fouls[0]} a={match.stats.fouls[1]}/>
+                <StatBar label="Sarı Kart" h={match.stats.yellow[0]} a={match.stats.yellow[1]}/>
+                <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+                  <span style={{fontSize:11,fontWeight:700,color:hc}}>{match.home}</span>
+                  <span style={{fontSize:11,fontWeight:700,color:ac}}>{match.away}</span>
+                </div>
+              </div>
+            )}
+            {section==="form" && (
+              <div>
+                <div style={{fontSize:10,fontWeight:700,color:C.muted,letterSpacing:1.2,marginBottom:12}}>SON 5 MAÇ FORMU</div>
+                <div style={{background:C.card,borderRadius:12,padding:"14px 16px",marginBottom:18,border:"1px solid "+C.border}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <TeamLogo name={match.home} size={26}/>
+                      <span style={{fontSize:12,fontWeight:800,color:hc}}>{match.home}</span>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontSize:12,fontWeight:800,color:ac}}>{match.away}</span>
+                      <TeamLogo name={match.away} size={26}/>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <div style={{display:"flex",gap:4}}>{match.form.home.map((r,i)=><FormDot key={i} r={r}/>)}</div>
+                    <span style={{fontSize:12,color:C.muted}}>vs</span>
+                    <div style={{display:"flex",gap:4}}>{match.form.away.map((r,i)=><FormDot key={i} r={r}/>)}</div>
+                  </div>
+                </div>
+                <div style={{fontSize:10,fontWeight:700,color:C.muted,letterSpacing:1.2,marginBottom:12}}>ÖNCEKİ KARŞILAŞMALAR</div>
+                {match.h2h.map((g,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",borderRadius:10,background:C.card,border:"1px solid "+C.border,marginBottom:6}}>
+                    <span style={{fontSize:10,color:C.muted,minWidth:58,fontWeight:600}}>{g.d}</span>
+                    <span style={{flex:1,fontSize:12,fontWeight:700,color:C.text,textAlign:"right"}}>{g.h}</span>
+                    <span style={{padding:"3px 10px",background:C.text,color:"#fff",borderRadius:6,fontSize:13,fontWeight:900,fontFamily:"'Oswald',sans-serif",minWidth:52,textAlign:"center"}}>{g.s}</span>
+                    <span style={{flex:1,fontSize:12,fontWeight:700,color:C.text}}>{g.a}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {section==="lineup" && (
+              <div>
+                <div style={{fontSize:10,fontWeight:700,color:C.muted,letterSpacing:1.2,marginBottom:12}}>İLK 11 KADRO</div>
+                {match.lineup.home.length===0 ? (
+                  <div style={{textAlign:"center",padding:"50px 0",color:C.muted,fontSize:14}}>⏳ Kadro henüz açıklanmadı</div>
+                ) : (
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                    <div>
+                      <div style={{fontSize:11,fontWeight:800,color:hc,marginBottom:8,padding:"5px 10px",background:hc+"22",borderRadius:8,textAlign:"center",fontFamily:"'Oswald',sans-serif",border:"1px solid "+hc+"44"}}>{match.home.toUpperCase()}</div>
+                      {match.lineup.home.map((p,i)=>(
+                        <div key={i} style={{display:"flex",alignItems:"center",gap:7,padding:"6px 9px",borderRadius:7,marginBottom:3,background:C.card,border:"1px solid "+(i===0?hc+"50":C.border)}}>
+                          <span style={{width:18,height:18,borderRadius:"50%",background:i===0?hc:"#e5e7eb",color:i===0?"#fff":"#6b7280",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:800,flexShrink:0}}>{i+1}</span>
+                          <span style={{fontSize:11,color:i===0?C.text:"#6b7280",fontFamily:"'Nunito Sans',sans-serif",fontWeight:i===0?700:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{fontSize:11,fontWeight:800,color:ac,marginBottom:8,padding:"5px 10px",background:ac+"22",borderRadius:8,textAlign:"center",fontFamily:"'Oswald',sans-serif",border:"1px solid "+ac+"44"}}>{match.away.toUpperCase()}</div>
+                      {match.lineup.away.map((p,i)=>(
+                        <div key={i} style={{display:"flex",alignItems:"center",gap:7,padding:"6px 9px",borderRadius:7,marginBottom:3,background:C.card,border:"1px solid "+(i===0?ac+"50":C.border)}}>
+                          <span style={{width:18,height:18,borderRadius:"50%",background:i===0?ac:"#e5e7eb",color:i===0?"#fff":"#6b7280",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:800,flexShrink:0}}>{i+1}</span>
+                          <span style={{fontSize:11,color:i===0?C.text:"#6b7280",fontFamily:"'Nunito Sans',sans-serif",fontWeight:i===0?700:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function BottomSheet({match,onClose}) {
+      const [tab,setTab]=useState("stats");
+      const isLive=match.status==="live";
+      useEffect(()=>{document.body.style.overflow="hidden";return()=>{document.body.style.overflow="";};},[]);
+      return (
+        <div style={{position:"fixed",inset:0,zIndex:900,display:"flex",flexDirection:"column"}}>
+          <div style={{flex:"0 0 48px",background:"rgba(0,0,0,.35)"}} onClick={onClose}/>
+          <div style={{flex:1,background:C.bg,borderRadius:"18px 18px 0 0",display:"flex",flexDirection:"column",overflow:"hidden",boxShadow:"0 -6px 30px rgba(0,0,0,.12)"}}>
+            <div style={{display:"flex",justifyContent:"center",padding:"10px 0 4px",flexShrink:0,cursor:"pointer"}} onClick={onClose}>
+              <div style={{width:36,height:4,borderRadius:2,background:C.border}}/>
+            </div>
+            <div style={{flexShrink:0,background:C.card,borderBottom:"1px solid "+C.border,padding:"14px 20px 18px",position:"relative",overflow:"hidden"}}>
+              <img src={logo(match.home)||""} alt="" style={{position:"absolute",left:-20,top:"50%",transform:"translateY(-50%)",width:130,height:130,objectFit:"contain",opacity:.07,pointerEvents:"none"}}/>
+              <img src={logo(match.away)||""} alt="" style={{position:"absolute",right:-20,top:"50%",transform:"translateY(-50%)",width:130,height:130,objectFit:"contain",opacity:.07,pointerEvents:"none"}}/>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,position:"relative"}}>
+                <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+                  <TeamLogo name={match.home} size={56}/>
+                  <span style={{fontSize:13,fontWeight:900,color:C.text,fontFamily:"'Oswald',sans-serif",textAlign:"center",lineHeight:1.2}}>{match.home}</span>
+                </div>
+                <div style={{textAlign:"center",flexShrink:0}}>
+                  {match.score ? (
+                    <div>
+                      <div style={{fontSize:44,fontWeight:900,color:C.text,fontFamily:"'Oswald',sans-serif",letterSpacing:-2,lineHeight:1}}>
+                        {match.score[0]}<span style={{color:"#d1d5db",margin:"0 4px"}}>–</span>{match.score[1]}
+                      </div>
+                      {isLive && (
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:5,marginTop:5}}>
+                          <div style={{width:8,height:8,borderRadius:"50%",background:C.live,animation:"lp 1s infinite"}}/>
+                          <span style={{fontSize:13,fontWeight:800,color:C.live,fontFamily:"'Oswald',sans-serif"}}>{match.minute}'</span>
+                        </div>
+                      )}
+                      {match.status==="finished"&&<div style={{fontSize:11,color:C.muted,marginTop:4,fontWeight:700}}>MS</div>}
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{fontSize:28,fontWeight:900,color:C.muted,fontFamily:"'Oswald',sans-serif"}}>{match.time}</div>
+                      <div style={{fontSize:10,color:C.muted,marginTop:2}}>BAŞLAMADI</div>
+                    </div>
+                  )}
+                </div>
+                <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+                  <TeamLogo name={match.away} size={56}/>
+                  <span style={{fontSize:13,fontWeight:900,color:C.text,fontFamily:"'Oswald',sans-serif",textAlign:"center",lineHeight:1.2}}>{match.away}</span>
+                </div>
+              </div>
+            </div>
+            <div style={{display:"flex",background:C.card,borderBottom:"1px solid "+C.border,flexShrink:0}}>
+              {[{id:"stats",label:"📊 İstatistik"},{id:"chat",label:"💬 Sohbet"}].map(t=>(
+                <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"13px 0",fontSize:13,fontWeight:800,color:tab===t.id?C.accent:C.muted,background:"none",border:"none",cursor:"pointer",borderBottom:tab===t.id?"2.5px solid "+C.accent:"2.5px solid transparent",marginBottom:-1,fontFamily:"'Nunito Sans',sans-serif"}}>{t.label}</button>
+              ))}
+            </div>
+            <div style={{flex:1,overflow:"hidden"}}>
+              {tab==="stats"&&<StatsTab match={match}/>}
+              {tab==="chat"&&<ChatPanel matchId={match.id}/>}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function MatchRow({match}) {
+      const [open,setOpen]=useState(false);
+      const isLive=match.status==="live";
+      const isDone=match.status==="finished";
+      return (
+        <>
+          <div style={{display:"flex",alignItems:"stretch",borderBottom:"1px solid "+C.border,background:C.card,position:"relative",minHeight:70,overflow:"hidden"}}
+            onMouseEnter={e=>e.currentTarget.style.background="#f5f8ff"}
+            onMouseLeave={e=>e.currentTarget.style.background=C.card}
+          >
+            {isLive&&<div style={{position:"absolute",left:0,top:0,bottom:0,width:3,background:C.live}}/>}
+            <div style={{width:54,flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"8px 4px",borderRight:"1px solid "+C.border,background:isLive?"#fef2f2":C.sub,zIndex:1}}>
+              {isLive ? (
+                <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+                  <div style={{width:7,height:7,borderRadius:"50%",background:C.live,marginBottom:4,animation:"lp 1s infinite"}}/>
+                  <div style={{fontSize:15,fontWeight:900,color:C.live,fontFamily:"'Oswald',sans-serif",lineHeight:1}}>{match.minute}'</div>
+                </div>
+              ) : isDone ? (
+                <div style={{fontSize:10,fontWeight:700,color:C.muted}}>MS</div>
+              ) : (
+                <div style={{fontSize:13,fontWeight:700,color:"#374151",fontFamily:"'Oswald',sans-serif",textAlign:"center"}}>{match.time}</div>
+              )}
+            </div>
+            <div style={{flex:1,padding:"8px 12px",display:"flex",flexDirection:"column",justifyContent:"center",gap:7,overflow:"hidden",position:"relative",zIndex:1}}>
+              {/* Home */}
+              <div style={{display:"flex",alignItems:"center",gap:9,position:"relative"}}>
+                <TeamLogo name={match.home} size={22} style={{borderRadius:4,flexShrink:0}}/>
+                <div style={{flex:1,position:"relative",overflow:"hidden",display:"flex",alignItems:"center"}}>
+                  <img src={logo(match.home)||""} alt="" style={{position:"absolute",left:0,top:"50%",transform:"translateY(-50%)",height:32,width:32,objectFit:"contain",opacity:.12,pointerEvents:"none"}}/>
+                  <span style={{fontSize:14,fontWeight:800,color:C.text,fontFamily:"'Nunito Sans',sans-serif",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",position:"relative",zIndex:1,paddingLeft:2}}>{match.home}</span>
+                </div>
+                {match.score!==null&&<span style={{fontSize:20,fontWeight:900,color:C.text,fontFamily:"'Oswald',sans-serif",minWidth:20,textAlign:"center"}}>{match.score[0]}</span>}
+              </div>
+              {/* Away */}
+              <div style={{display:"flex",alignItems:"center",gap:9,position:"relative"}}>
+                <TeamLogo name={match.away} size={22} style={{borderRadius:4,flexShrink:0}}/>
+                <div style={{flex:1,position:"relative",overflow:"hidden",display:"flex",alignItems:"center"}}>
+                  <img src={logo(match.away)||""} alt="" style={{position:"absolute",left:0,top:"50%",transform:"translateY(-50%)",height:32,width:32,objectFit:"contain",opacity:.12,pointerEvents:"none"}}/>
+                  <span style={{fontSize:14,fontWeight:800,color:C.text,fontFamily:"'Nunito Sans',sans-serif",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",position:"relative",zIndex:1,paddingLeft:2}}>{match.away}</span>
+                </div>
+                {match.score!==null&&<span style={{fontSize:20,fontWeight:900,color:C.text,fontFamily:"'Oswald',sans-serif",minWidth:20,textAlign:"center"}}>{match.score[1]}</span>}
+              </div>
+            </div>
+            <button onClick={()=>setOpen(true)} style={{width:46,flexShrink:0,background:"none",border:"none",borderLeft:"1px solid "+C.border,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1}}>
+              <span style={{fontSize:24,color:"#d1d5db",lineHeight:1}}>›</span>
+            </button>
+          </div>
+          {open&&<BottomSheet match={match} onClose={()=>setOpen(false)}/>}
+        </>
+      );
+    }
+
+    function GeneralChatScreen({onClose}) {
+      useEffect(()=>{document.body.style.overflow="hidden";return()=>{document.body.style.overflow="";};},[]);
+      return (
+        <div style={{position:"fixed",inset:0,zIndex:900,background:C.bg,display:"flex",flexDirection:"column"}}>
+          <div style={{height:54,background:C.card,borderBottom:"1px solid "+C.border,display:"flex",alignItems:"center",padding:"0 16px",gap:12,flexShrink:0}}>
+            <button onClick={onClose} style={{width:36,height:36,borderRadius:"50%",border:"1px solid "+C.border,background:C.sub,color:C.text,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+            <span style={{fontSize:22}}>⚽</span>
+            <div>
+              <div style={{fontSize:15,fontWeight:900,color:C.text,fontFamily:"'Oswald',sans-serif",letterSpacing:.5}}>GENEL SOHBET</div>
+              <div style={{fontSize:11,color:C.muted}}>Tüm maçlar hakkında</div>
+            </div>
+            <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:5}}>
+              <div style={{width:7,height:7,borderRadius:"50%",background:C.green,boxShadow:"0 0 5px "+C.green}}/>
+              <span style={{fontSize:11,color:C.muted,fontWeight:700}}>247</span>
+            </div>
+          </div>
+          <div style={{flex:1,overflow:"hidden"}}><ChatPanel matchId={null}/></div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [navPage,setNavPage]=useState("home");
+      const liveCount=LEAGUES.flatMap(l=>l.matches).filter(m=>m.status==="live").length;
+      return (
+        <div style={{background:C.bg,minHeight:"100vh",fontFamily:"'Nunito Sans',system-ui,sans-serif",maxWidth:430,margin:"0 auto",position:"relative"}}>
+          <div style={{background:C.card,borderBottom:"1px solid "+C.border,padding:"0 16px",height:52,display:"flex",alignItems:"center",gap:10,position:"sticky",top:0,zIndex:100,boxShadow:"0 1px 4px rgba(0,0,0,.06)"}}>
+            <div style={{fontFamily:"'Oswald',sans-serif",fontSize:22,fontWeight:700,color:C.accent,letterSpacing:1}}>TOP BİZDE</div>
+            {liveCount>0&&(
+              <div style={{display:"flex",alignItems:"center",gap:4,background:"#fef2f2",border:"1px solid #fecaca",padding:"3px 8px",borderRadius:6}}>
+                <div style={{width:6,height:6,borderRadius:"50%",background:C.live,animation:"lp 1s infinite"}}/>
+                <span style={{fontSize:10,fontWeight:800,color:C.live,letterSpacing:.5,fontFamily:"'Oswald',sans-serif"}}>{liveCount} CANLI</span>
+              </div>
+            )}
+            <div style={{flex:1}}/>
+            <button onClick={()=>setNavPage("chat")} style={{width:40,height:40,borderRadius:"50%",background:"linear-gradient(135deg,#dbeafe,#bfdbfe)",border:"1.5px solid #93c5fd",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,position:"relative"}}>
+              ⚽
+              <div style={{position:"absolute",top:-2,right:-2,width:12,height:12,borderRadius:"50%",background:C.green,border:"2px solid "+C.card}}/>
+            </button>
+          </div>
+          <div style={{background:C.card,borderBottom:"1px solid "+C.border,overflowX:"auto",display:"flex",padding:"0 12px"}}>
+            {["Tümü","Canlı","Süper Lig","UCL","Premier L.","La Liga"].map((t,i)=>(
+              <div key={t} style={{padding:"10px 12px",whiteSpace:"nowrap",fontSize:12,fontWeight:700,cursor:"pointer",color:i===0?C.accent:C.muted,borderBottom:i===0?"2px solid "+C.accent:"2px solid transparent",flexShrink:0,fontFamily:"'Nunito Sans',sans-serif"}}>{t}</div>
+            ))}
+          </div>
+          <div style={{paddingBottom:76}}>
+            {LEAGUES.map(league=>(
+              <div key={league.id} style={{marginBottom:8}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 14px",background:"#eef2ff",borderTop:"1px solid "+C.border,borderBottom:"1px solid "+C.border}}>
+                  <span style={{fontSize:15}}>{league.flag}</span>
+                  <span style={{fontSize:12,fontWeight:900,color:"#1e3a8a",fontFamily:"'Oswald',sans-serif",letterSpacing:.8}}>{league.name}</span>
+                  <span style={{marginLeft:"auto",fontSize:11,color:"#6b7280",fontWeight:600}}>{league.matches[0]&&league.matches[0].time}</span>
+                </div>
+                {league.matches.map(m=><MatchRow key={m.id} match={m}/>)}
+              </div>
+            ))}
+          </div>
+          <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:430,background:C.card,borderTop:"1px solid "+C.border,display:"flex",zIndex:200,boxShadow:"0 -2px 10px rgba(0,0,0,.06)"}}>
+            {[{id:"home",icon:"⚽",label:"Maçlar"},{id:"live",icon:"📡",label:"Canlı"},{id:"chat",icon:"💬",label:"Sohbet"},{id:"profile",icon:"👤",label:"Profil"}].map(tab=>(
+              <button key={tab.id} onClick={()=>setNavPage(tab.id==="chat"?"chat":tab.id)} style={{flex:1,padding:"10px 0 8px",display:"flex",flexDirection:"column",alignItems:"center",gap:3,background:"none",border:"none",cursor:"pointer"}}>
+                <span style={{fontSize:20}}>{tab.icon}</span>
+                <span style={{fontSize:10,fontWeight:700,color:navPage===tab.id?C.accent:C.muted,fontFamily:"'Nunito Sans',sans-serif"}}>{tab.label}</span>
+                {navPage===tab.id&&<div style={{width:18,height:2,borderRadius:1,background:C.accent}}/>}
+              </button>
+            ))}
+          </div>
+          {navPage==="chat"&&<GeneralChatScreen onClose={()=>setNavPage("home")}/>}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App/>);
+  </script>
+
+</body>
+</html>
